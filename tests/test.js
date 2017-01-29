@@ -29,15 +29,18 @@ var Hs100Api = require('fx-hs100-api');
 
 
 describe('hs100', function () {
+    this.timeout(60000);
     describe('test', function () {
         it('should turn a known socket on and off', function (done) {
             var client = new Hs100Api.Client();
             var plug = client.getPlug({host: '10.0.1.2'});
             plug.setPowerState(true);
+            console.log('Turned it on');
             setTimeout(function () {
                 plug.setPowerState(false);
+                console.log('Turned it off');
                 done();
-            }, 1000);
+            }, 10000);
         });
     });
 });
