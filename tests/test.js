@@ -37,7 +37,7 @@ describe('hs100', function () {
             plug.setPowerState(true);
             console.log('Turned it on');
             plug.getInfo().then(function (device) {
-                console.log(JSON.stringify(device, null, 4);
+                console.log(JSON.stringify(device, null, 4));
                 setTimeout(function () {
                     plug.setPowerState(false);
                     console.log('Turned it off');
