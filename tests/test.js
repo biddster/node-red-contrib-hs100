@@ -41,7 +41,10 @@ describe('hs100', function () {
                 setTimeout(function () {
                     plug.setPowerState(false);
                     console.log('Turned it off');
-                    done();
+                    setTimeout(function () {
+                        console.log('Exiting test');
+                        done();
+                    }, 10000);
                 }, 10000);
             });
         });
