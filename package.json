@@ -1,5 +1,5 @@
 {
-  "name": "git ",
+  "name": "node-red-contrib-hs100",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
@@ -17,7 +17,17 @@
   },
   "author": "@biddster",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/biddster/node-red-contrib-hs100.git"
+  },
+
   "dependencies": {
     "fx-hs100-api": "^0.3.0"
+  },
+  "node-red": {
+    "nodes": {
+      "hs100": "index.js"
+    }
   }
 }

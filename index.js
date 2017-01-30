@@ -22,31 +22,31 @@
  THE SOFTWARE.
  */
 
-"use strict";
-var assert = require('chai').assert;
-var mock = require('node-red-contrib-mock-node');
-var Hs100Api = require('fx-hs100-api');
+module.exports = function (RED) {
+    'use strict';
 
+    var Hs100Api = require('fx-hs100-api');
 
-describe('hs100', function () {
-    this.timeout(60000);
-    describe('test', function () {
-        it('should turn a known socket on and off', function (done) {
-            var client = new Hs100Api.Client();
-            var plug = client.getPlug({host: '192.168.74.82'});
-            plug.setPowerState(true);
-            console.log('Turned it on');
-            plug.getInfo().then(function (device) {
-                console.log(JSON.stringify(device, null, 4));
-                setTimeout(function () {
-                    plug.setPowerState(false);
-                    console.log('Turned it off');
-                    setTimeout(function () {
-                        console.log('Exiting test');
-                        done();
-                    }, 10000);
-                }, 10000);
+    RED.nodes.registerType('hs100', function (config) {
+
+        RED.nodes.createNode(this, config);
+        var node = this;
+
+        var client = new Hs100Api.Client();
+        var plug = client.getPlug({host: config.host});
+
+        node.on('input', function (msg) {
+            var state = msg.payload === 'on';
+            plug.setPowerState(state);
+            node.status({
+                fill: 'green',
+                shape: state ? 'dot' : 'circle',
+                text: state ? 'on' : 'off'
             });
         });
+
+        node.on('close', function () {
+            client.socket.close();
+        });
     });
-});
+};
