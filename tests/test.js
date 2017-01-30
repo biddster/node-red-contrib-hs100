@@ -33,14 +33,17 @@ describe('hs100', function () {
     describe('test', function () {
         it('should turn a known socket on and off', function (done) {
             var client = new Hs100Api.Client();
-            var plug = client.getPlug({host: '10.0.1.2'});
+            var plug = client.getPlug({host: '192.168.74.82'});
             plug.setPowerState(true);
             console.log('Turned it on');
-            setTimeout(function () {
-                plug.setPowerState(false);
-                console.log('Turned it off');
-                done();
-            }, 10000);
+            plug.getInfo().then(function (device) {
+                console.log(JSON.stringify(device, null, 4);
+                setTimeout(function () {
+                    plug.setPowerState(false);
+                    console.log('Turned it off');
+                    done();
+                }, 10000);
+            });
         });
     });
 });
