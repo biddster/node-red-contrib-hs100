@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "",
   "main": "index.js",
+  "keywords": ["node-red", "tp-link", "tplink", "hs100"],
   "devDependencies": {
     "chai": "^3.0.0",
     "markdown-to-html": "0.0.13",
@@ -21,7 +22,6 @@
     "type": "git",
     "url": "https://github.com/biddster/node-red-contrib-hs100.git"
   },
-
   "dependencies": {
     "fx-hs100-api": "^0.3.0"
   },

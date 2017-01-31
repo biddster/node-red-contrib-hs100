@@ -36,7 +36,7 @@ module.exports = function (RED) {
         var plug = client.getPlug({host: config.host});
 
         node.on('input', function (msg) {
-            var state = msg.payload === 'on';
+            var state = (msg.payload === 'on' || msg.topic === 'on');
             plug.setPowerState(state);
             node.status({
                 fill: 'green',
