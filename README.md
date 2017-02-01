@@ -10,7 +10,7 @@ This node simply wraps the excellent work here https://github.com/czjs2/hs100-ap
 
 Change directory to your node red installation:
 
-    $ npm install node-red-contrib-schedex
+    $ npm install node-red-contrib-hs100
   
 Alternatively, use the Palette Manager in Node-RED.
 
