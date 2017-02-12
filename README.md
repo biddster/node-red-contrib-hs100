@@ -18,6 +18,18 @@ Alternatively, use the Palette Manager in Node-RED.
 
 Drag this node on to a worksheet and double click it. Enter the IP address of the plug on your network. Save and deploy.
 
-To turn the HS100 on, send a message a message with the topic or payload set to `on`.
 
-To turn the HS100 off, send a message a message with the topic or payload set to `off`.
+# Actuation
+
+## Turn on
+
+To turn the HS100 on, send a message to this node's input with the topic or payload set to `on`.
+
+## Turn off
+
+To turn the HS100 off, send a message to this node's input with the topic or payload set to `off`.
+
+## Obtain power consumption data
+
+To obtain the power consumption, send a message to this node's input with the topic or payload set to `consumption`. 
+The consumption data will be sent via this node's output in `msg.payload`.
