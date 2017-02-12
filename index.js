@@ -54,6 +54,11 @@ module.exports = function (RED) {
         });
 
         function setPowerState(on) {
+            node.status({
+                fill: 'orange',
+                shape: on ? 'dot' : 'circle',
+                text: 'Turning ' + ( on ? 'on' : 'off')
+            });
             plug.setPowerState(on).then(function () {
                 node.status({
                     fill: 'green',
