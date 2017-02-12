@@ -67,8 +67,19 @@ THE SOFTWARE.
 
 <p>Drag this node on to a worksheet and double click it. Enter the IP address of the plug on your network. Save and deploy.</p>
 
-<p>To turn the HS100 on, send a message a message with the topic or payload set to <code>on</code>.</p>
+<h1>Actuation</h1>
 
-<p>To turn the HS100 off, send a message a message with the topic or payload set to <code>off</code>.</p>
+<h2>Turn on</h2>
+
+<p>To turn the HS100 on, send a message to this node's input with the topic or payload set to <code>on</code>.</p>
+
+<h2>Turn off</h2>
+
+<p>To turn the HS100 off, send a message to this node's input with the topic or payload set to <code>off</code>.</p>
+
+<h2>Obtain power consumption data</h2>
+
+<p>To obtain the power consumption, send a message to this node's input with the topic or payload set to `consumption`. The consumption data will
+be sent via this node's output in <code>msg.payload</code>.</p>
 
 </script>

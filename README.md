@@ -21,9 +21,15 @@ Drag this node on to a worksheet and double click it. Enter the IP address of th
 
 # Actuation
 
-To turn the HS100 on, send a message with the topic or payload set to `on`.
+## Turn on
 
-To turn the HS100 off, send a message with the topic or payload set to `off`.
+To turn the HS100 on, send a message to this node's input with the topic or payload set to `on`.
 
-To obtain the power consumption, send a message with the topic or payload set to `consumption`. The consumption data will
-be sent via this node's output in `msg.payload`.
+## Turn off
+
+To turn the HS100 off, send a message to this node's input with the topic or payload set to `off`.
+
+## Obtain power consumption data
+
+To obtain the power consumption, send a message to this node's input with the topic or payload set to `consumption`. 
+The consumption data will be sent via this node's output in `msg.payload`.
