@@ -36,17 +36,36 @@ module.exports = function (RED) {
         var plug = client.getPlug({host: config.host});
 
         node.on('input', function (msg) {
-            var state = (msg.payload === 'on' || msg.topic === 'on');
-            plug.setPowerState(state);
-            node.status({
-                fill: 'green',
-                shape: state ? 'dot' : 'circle',
-                text: state ? 'on' : 'off'
-            });
+            if (msg.payload === 'consumption' || msg.topic === 'consumption') {
+                plug.getConsumption().then(function (data) {
+                    node.send({payload: data});
+                }).catch(errorHandler);
+            } else if (msg.payload === 'on' || msg.topic === 'on') {
+                setPowerState(true);
+            } else if (msg.payload === 'off' || msg.topic === 'off') {
+                setPowerState(false);
+            } else {
+                errorHandler(new Error('Actuation must be one of [on, off, consumption]'));
+            }
         });
 
         node.on('close', function () {
             client.socket.close();
         });
+
+        function setPowerState(on) {
+            plug.setPowerState(on).then(function () {
+                node.status({
+                    fill: 'green',
+                    shape: on ? 'dot' : 'circle',
+                    text: on ? 'on' : 'off'
+                });
+            }).catch(errorHandler);
+        }
+
+        function errorHandler(err) {
+            node.error(err);
+            node.status({fill: 'red', shape: 'dot', text: err.message});
+        }
     });
 };
