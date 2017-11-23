@@ -22,34 +22,64 @@
  THE SOFTWARE.
  */
 
-module.exports = function (RED) {
+module.exports = function hs100(RED) {
     'use strict';
 
     var Hs100Api = require('fx-hs100-api');
 
-    RED.nodes.registerType('hs100', function (config) {
+    // TODO address the disparity of not having on and off in here. It bothers me.
+    hs100.supportedActuations = {
+        info: 'getInfo',
+        sysinfo: 'getSysInfo',
+        cloudinfo: 'getCloudInfo',
+        consumption: 'getConsumption',
+        powerstate: 'getPowerState',
+        schedulenextaction: 'getScheduleNextAction',
+        schedulerules: 'getScheduleRules',
+        awayrules: 'getAwayRules',
+        timerrules: 'getTimerRules',
+        time: 'getTime',
+        timezone: 'getTimeZone',
+        scaninfo: 'getScanInfo',
+        model: 'getModel'
+    };
 
+    hs100.newHs100Client = function() {
+        return new Hs100Api.Client();
+    };
+
+    RED.nodes.registerType('hs100', function(config) {
         RED.nodes.createNode(this, config);
         var node = this;
 
-        var client = new Hs100Api.Client();
-        var plug = client.getPlug({host: config.host});
+        var client = hs100.newHs100Client();
+        var plug = client.getPlug({ host: config.host });
 
-        node.on('input', function (msg) {
-            if (msg.payload === 'consumption' || msg.topic === 'consumption') {
-                plug.getConsumption().then(function (data) {
-                    node.send({payload: data});
-                }).catch(errorHandler);
-            } else if (msg.payload === 'on' || msg.topic === 'on') {
+        node.on('input', function(msg) {
+            if (msg.payload === 'on' || msg.topic === 'on') {
                 setPowerState(true);
             } else if (msg.payload === 'off' || msg.topic === 'off') {
                 setPowerState(false);
             } else {
-                errorHandler(new Error('Actuation must be one of [on, off, consumption]'));
+                var actuation = getActuation(msg.payload) || getActuation(msg.topic);
+                if (actuation) {
+                    plug[actuation.method]()
+                        .then(function(data) {
+                            node.send({ topic: actuation.name, payload: data });
+                        })
+                        .catch(errorHandler);
+                } else {
+                    errorHandler(
+                        new Error(
+                            'Actuation must be one of on,off,' +
+                                Object.keys(hs100.supportedActuations).toString()
+                        )
+                    );
+                }
             }
         });
 
-        node.on('close', function () {
+        node.on('close', function() {
             client.socket.close();
         });
 
@@ -57,20 +87,33 @@ module.exports = function (RED) {
             node.status({
                 fill: 'orange',
                 shape: on ? 'dot' : 'circle',
-                text: 'Turning ' + ( on ? 'on' : 'off')
+                text: 'Turning ' + (on ? 'on' : 'off')
             });
-            plug.setPowerState(on).then(function () {
-                node.status({
-                    fill: 'green',
-                    shape: on ? 'dot' : 'circle',
-                    text: on ? 'on' : 'off'
-                });
-            }).catch(errorHandler);
+            plug
+                .setPowerState(on)
+                .then(function() {
+                    node.status({
+                        fill: 'green',
+                        shape: on ? 'dot' : 'circle',
+                        text: on ? 'on' : 'off'
+                    });
+                })
+                .catch(errorHandler);
+        }
+
+        function getActuation(actuation) {
+            if (actuation) {
+                var method = hs100.supportedActuations[actuation.toLowerCase()];
+                if (method) {
+                    return { name: actuation, method: method };
+                }
+            }
+            return null;
         }
 
         function errorHandler(err) {
             node.error(err);
-            node.status({fill: 'red', shape: 'dot', text: err.message});
+            node.status({ fill: 'red', shape: 'dot', text: err.message });
         }
     });
 };
