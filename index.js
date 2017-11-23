@@ -27,21 +27,21 @@ module.exports = function hs100(RED) {
 
     var Hs100Api = require('fx-hs100-api');
 
-    hs100.supportedActuations = [
-        'Info',
-        'SysInfo',
-        'CloudInfo',
-        'Consumption',
-        'PowerState',
-        'ScheduleNextAction',
-        'ScheduleRules',
-        'AwayRules',
-        'TimerRules',
-        'Time',
-        'TimeZone',
-        'ScanInfo',
-        'Model'
-    ];
+    hs100.supportedActuations = {
+        info: 'getInfo',
+        sysinfo: 'getSysInfo',
+        cloudinfo: 'getCloudInfo',
+        consumption: 'getConsumption',
+        powerstate: 'getPowerState',
+        schedulenextaction: 'getScheduleNextAction',
+        schedulerules: 'getScheduleRules',
+        awayrules: 'getAwayRules',
+        timerrules: 'getTimerRules',
+        time: 'getTime',
+        timezone: 'getTimeZone',
+        scaninfo: 'getScanInfo',
+        model: 'getModel'
+    };
 
     hs100.newHs100Client = function() {
         return new Hs100Api.Client();
@@ -60,27 +60,18 @@ module.exports = function hs100(RED) {
             } else if (msg.payload === 'off' || msg.topic === 'off') {
                 setPowerState(false);
             } else {
-                var actuation = hs100.supportedActuations.find(function(supportedActuation) {
-                    // Have to do this lowercase as there are prior versions of this node which allow
-                    // lowercase actuations in the incoming mesage.
-                    var sa = supportedActuation.toLowerCase();
-                    return msg.topic === sa || msg.payload === sa;
-                });
+                var actuation = getActuation(msg.payload) || getActuation(msg.topic);
                 if (actuation) {
-                    plug['get' + actuation]()
+                    plug[actuation.method]()
                         .then(function(data) {
-                            node.send({ topic: actuation.toLowerCase(), payload: data });
+                            node.send({ topic: actuation.name, payload: data });
                         })
                         .catch(errorHandler);
                 } else {
                     errorHandler(
                         new Error(
                             'Actuation must be one of on,off,' +
-                                hs100.supportedActuations
-                                    .map(function(actuation) {
-                                        return actuation.toLowerCase();
-                                    })
-                                    .toString()
+                                Object.keys(hs100.supportedActuations).toString()
                         )
                     );
                 }
@@ -107,6 +98,16 @@ module.exports = function hs100(RED) {
                     });
                 })
                 .catch(errorHandler);
+        }
+
+        function getActuation(actuation) {
+            if (actuation) {
+                var method = hs100.supportedActuations[actuation.toLowerCase()];
+                if (method) {
+                    return { name: actuation, method: method };
+                }
+            }
+            return null;
         }
 
         function errorHandler(err) {

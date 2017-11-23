@@ -26,6 +26,7 @@
 var assert = require('chai').assert;
 var mock = require('node-red-contrib-mock-node');
 var nodeRedModule = require('../index.js');
+var _ = require('lodash');
 
 describe('hs100', function() {
     this.timeout(60000);
@@ -53,8 +54,18 @@ describe('hs100', function() {
         var node = newNode();
         node.emit('input', { payload: 'consumption' });
         setTimeout(function() {
-            assert.deepEqual(node.sent(0).payload, { mocked: 'Consumption' });
+            assert.deepEqual(node.sent(0).payload, { mocked: 'getConsumption' });
             assert.strictEqual(node.sent(0).topic, 'consumption');
+            node.emit('close');
+            done();
+        }, 10);
+    });
+    it('should emit sysinfo data', function(done) {
+        var node = newNode();
+        node.emit('input', { topic: 'SysInfo' });
+        setTimeout(function() {
+            assert.deepEqual(node.sent(0).payload, { mocked: 'getSysInfo' });
+            assert.strictEqual(node.sent(0).topic, 'SysInfo');
             node.emit('close');
             done();
         }, 10);
@@ -76,10 +87,10 @@ function newNode() {
             return {
                 getPlug: function() {
                     var plug = {};
-                    module.supportedActuations.forEach(function(actuation) {
-                        plug['get' + actuation] = function() {
+                    _.values(module.supportedActuations).forEach(function(method) {
+                        plug[method] = function() {
                             return new Promise(function(resolve, reject) {
-                                resolve({ mocked: actuation });
+                                resolve({ mocked: method });
                             });
                         };
                     });
