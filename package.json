@@ -12,13 +12,14 @@
         "markdown-to-html": "0.0.13",
         "mocha": "^3.1.2",
         "node-red-contrib-mock-node": "^0.3.0",
+        "nyc": "^11.3.0",
         "prettier": "^1.8.2"
     },
     "directories": {
         "test": "tests"
     },
     "scripts": {
-        "test": "node_modules/.bin/mocha tests/test.js"
+        "test": "nyc --reporter=html node_modules/.bin/mocha -R spec ./tests/test.js"
     },
     "author": "@biddster",
     "license": "MIT",
