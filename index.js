@@ -27,6 +27,7 @@ module.exports = function hs100(RED) {
 
     var Hs100Api = require('fx-hs100-api');
 
+    // TODO address the disparity of not having on and off in here. It bothers me.
     hs100.supportedActuations = {
         info: 'getInfo',
         sysinfo: 'getSysInfo',
