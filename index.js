@@ -75,8 +75,12 @@ module.exports = function hs100(RED) {
                 } else {
                     errorHandler(
                         new Error(
-                            'Actuation must be one of [on, off] or ' +
-                                supportedActuations.toString()
+                            'Actuation must be one of on,off,' +
+                                hs100.supportedActuations
+                                    .map(function(actuation) {
+                                        return actuation.toLowerCase();
+                                    })
+                                    .toString()
                         )
                     );
                 }

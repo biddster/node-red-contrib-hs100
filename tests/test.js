@@ -35,8 +35,9 @@ describe('hs100', function() {
         setTimeout(function() {
             assert.strictEqual(node.status().text, 'on');
             assert.strictEqual(node.status().shape, 'dot');
+            node.emit('close');
             done();
-        }, 1000);
+        }, 10);
     });
     it('should turn a socket off', function(done) {
         var node = newNode();
@@ -44,8 +45,9 @@ describe('hs100', function() {
         setTimeout(function() {
             assert.strictEqual(node.status().text, 'off');
             assert.strictEqual(node.status().shape, 'circle');
+            node.emit('close');
             done();
-        }, 1000);
+        }, 10);
     });
     it('should emit consumption data', function(done) {
         var node = newNode();
@@ -53,8 +55,18 @@ describe('hs100', function() {
         setTimeout(function() {
             assert.deepEqual(node.sent(0).payload, { mocked: 'Consumption' });
             assert.strictEqual(node.sent(0).topic, 'consumption');
+            node.emit('close');
             done();
-        }, 1000);
+        }, 10);
+    });
+    it('should handle errors', function(done) {
+        var node = newNode();
+        node.emit('input', { payload: 'wibble' });
+        setTimeout(function() {
+            assert.isNotNull(node.error(0));
+            node.emit('close');
+            done();
+        }, 10);
     });
 });
 
@@ -77,7 +89,8 @@ function newNode() {
                         });
                     };
                     return plug;
-                }
+                },
+                socket: { close: function() {} }
             };
         };
     });
