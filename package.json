@@ -1,33 +1,54 @@
 {
-  "name": "node-red-contrib-hs100",
-  "version": "0.3.0",
-  "description": "",
-  "main": "index.js",
-  "keywords": ["node-red", "tp-link", "tplink", "hs100"],
-  "devDependencies": {
-    "chai": "^3.0.0",
-    "markdown-to-html": "0.0.13",
-    "mocha": "^3.1.2",
-    "node-red-contrib-mock-node": "^0.3.0"
-  },
-  "directories": {
-    "test": "tests"
-  },
-  "scripts": {
-    "test": "node_modules/.bin/mocha tests/test.js"
-  },
-  "author": "@biddster",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/biddster/node-red-contrib-hs100.git"
-  },
-  "dependencies": {
-    "fx-hs100-api": "^0.3.0"
-  },
-  "node-red": {
-    "nodes": {
-      "hs100": "index.js"
+    "name": "node-red-contrib-hs100",
+    "version": "0.3.0",
+    "description": "",
+    "main": "index.js",
+    "keywords": ["node-red", "tp-link", "tplink", "hs100"],
+    "devDependencies": {
+        "chai": "^3.0.0",
+        "eslint": "^4.11.0",
+        "eslint-config-biddster": "^0.4.0",
+        "eslint-config-prettier": "^2.8.0",
+        "markdown-to-html": "0.0.13",
+        "mocha": "^3.1.2",
+        "node-red-contrib-mock-node": "^0.3.0",
+        "prettier": "^1.8.2"
+    },
+    "directories": {
+        "test": "tests"
+    },
+    "scripts": {
+        "test": "node_modules/.bin/mocha tests/test.js"
+    },
+    "author": "@biddster",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/biddster/node-red-contrib-hs100.git"
+    },
+    "dependencies": {
+        "fx-hs100-api": "^0.3.0"
+    },
+    "node-red": {
+        "nodes": {
+            "hs100": "index.js"
+        }
+    },
+    "eslintConfig": {
+        "env": {
+            "es6": true,
+            "node": true,
+            "mocha": true
+        },
+        "parserOptions": {
+            "ecmaVersion": 6,
+            "sourceType": "module"
+        },
+        "extends": ["eslint-config-biddster/es6-node", "prettier"]
+    },
+    "prettier": {
+        "singleQuote": true,
+        "tabWidth": 4,
+        "printWidth": 96
     }
-  }
 }

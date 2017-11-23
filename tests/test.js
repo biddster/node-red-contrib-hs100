@@ -22,31 +22,63 @@
  THE SOFTWARE.
  */
 
-"use strict";
+('use strict');
 var assert = require('chai').assert;
 var mock = require('node-red-contrib-mock-node');
-var Hs100Api = require('fx-hs100-api');
+var nodeRedModule = require('../index.js');
 
-
-describe('hs100', function () {
+describe('hs100', function() {
     this.timeout(60000);
-    describe('test', function () {
-        it('should turn a known socket on and off', function (done) {
-            var client = new Hs100Api.Client();
-            var plug = client.getPlug({host: '192.168.74.82'});
-            plug.setPowerState(true);
-            console.log('Turned it on');
-            plug.getInfo().then(function (device) {
-                console.log(JSON.stringify(device, null, 4));
-                setTimeout(function () {
-                    plug.setPowerState(false);
-                    console.log('Turned it off');
-                    setTimeout(function () {
-                        console.log('Exiting test');
-                        done();
-                    }, 10000);
-                }, 10000);
-            });
-        });
+    it('should turn a socket on', function(done) {
+        var node = newNode();
+        node.emit('input', { payload: 'on' });
+        setTimeout(function() {
+            assert.strictEqual(node.status().text, 'on');
+            assert.strictEqual(node.status().shape, 'dot');
+            done();
+        }, 1000);
+    });
+    it('should turn a socket off', function(done) {
+        var node = newNode();
+        node.emit('input', { payload: 'off' });
+        setTimeout(function() {
+            assert.strictEqual(node.status().text, 'off');
+            assert.strictEqual(node.status().shape, 'circle');
+            done();
+        }, 1000);
+    });
+    it('should emit consumption data', function(done) {
+        var node = newNode();
+        node.emit('input', { payload: 'consumption' });
+        setTimeout(function() {
+            assert.deepEqual(node.sent(0).payload, { mocked: 'Consumption' });
+            assert.strictEqual(node.sent(0).topic, 'consumption');
+            done();
+        }, 1000);
     });
 });
+
+function newNode() {
+    return mock(nodeRedModule, {}, null, function(module, node) {
+        module.newHs100Client = function() {
+            return {
+                getPlug: function() {
+                    var plug = {};
+                    module.supportedActuations.forEach(function(actuation) {
+                        plug['get' + actuation] = function() {
+                            return new Promise(function(resolve, reject) {
+                                resolve({ mocked: actuation });
+                            });
+                        };
+                    });
+                    plug.setPowerState = function(state) {
+                        return new Promise(function(resolve, reject) {
+                            resolve({ mocked: state });
+                        });
+                    };
+                    return plug;
+                }
+            };
+        };
+    });
+}

@@ -22,34 +22,68 @@
  THE SOFTWARE.
  */
 
-module.exports = function (RED) {
+module.exports = function hs100(RED) {
     'use strict';
 
     var Hs100Api = require('fx-hs100-api');
 
-    RED.nodes.registerType('hs100', function (config) {
+    hs100.supportedActuations = [
+        'Info',
+        'SysInfo',
+        'CloudInfo',
+        'Consumption',
+        'PowerState',
+        'ScheduleNextAction',
+        'ScheduleRules',
+        'AwayRules',
+        'TimerRules',
+        'Time',
+        'TimeZone',
+        'ScanInfo',
+        'Model'
+    ];
 
+    hs100.newHs100Client = function() {
+        return new Hs100Api.Client();
+    };
+
+    RED.nodes.registerType('hs100', function(config) {
         RED.nodes.createNode(this, config);
         var node = this;
 
-        var client = new Hs100Api.Client();
-        var plug = client.getPlug({host: config.host});
+        var client = hs100.newHs100Client();
+        var plug = client.getPlug({ host: config.host });
 
-        node.on('input', function (msg) {
-            if (msg.payload === 'consumption' || msg.topic === 'consumption') {
-                plug.getConsumption().then(function (data) {
-                    node.send({payload: data});
-                }).catch(errorHandler);
-            } else if (msg.payload === 'on' || msg.topic === 'on') {
+        node.on('input', function(msg) {
+            if (msg.payload === 'on' || msg.topic === 'on') {
                 setPowerState(true);
             } else if (msg.payload === 'off' || msg.topic === 'off') {
                 setPowerState(false);
             } else {
-                errorHandler(new Error('Actuation must be one of [on, off, consumption]'));
+                var actuation = hs100.supportedActuations.find(function(supportedActuation) {
+                    // Have to do this lowercase as there are prior versions of this node which allow
+                    // lowercase actuations in the incoming mesage.
+                    var sa = supportedActuation.toLowerCase();
+                    return msg.topic === sa || msg.payload === sa;
+                });
+                if (actuation) {
+                    plug['get' + actuation]()
+                        .then(function(data) {
+                            node.send({ topic: actuation.toLowerCase(), payload: data });
+                        })
+                        .catch(errorHandler);
+                } else {
+                    errorHandler(
+                        new Error(
+                            'Actuation must be one of [on, off] or ' +
+                                supportedActuations.toString()
+                        )
+                    );
+                }
             }
         });
 
-        node.on('close', function () {
+        node.on('close', function() {
             client.socket.close();
         });
 
@@ -57,20 +91,23 @@ module.exports = function (RED) {
             node.status({
                 fill: 'orange',
                 shape: on ? 'dot' : 'circle',
-                text: 'Turning ' + ( on ? 'on' : 'off')
+                text: 'Turning ' + (on ? 'on' : 'off')
             });
-            plug.setPowerState(on).then(function () {
-                node.status({
-                    fill: 'green',
-                    shape: on ? 'dot' : 'circle',
-                    text: on ? 'on' : 'off'
-                });
-            }).catch(errorHandler);
+            plug
+                .setPowerState(on)
+                .then(function() {
+                    node.status({
+                        fill: 'green',
+                        shape: on ? 'dot' : 'circle',
+                        text: on ? 'on' : 'off'
+                    });
+                })
+                .catch(errorHandler);
         }
 
         function errorHandler(err) {
             node.error(err);
-            node.status({fill: 'red', shape: 'dot', text: err.message});
+            node.status({ fill: 'red', shape: 'dot', text: err.message });
         }
     });
 };
