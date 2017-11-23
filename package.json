@@ -11,7 +11,7 @@
         "eslint-config-prettier": "^2.8.0",
         "markdown-to-html": "0.0.13",
         "mocha": "^3.1.2",
-        "node-red-contrib-mock-node": "^0.3.0",
+        "node-red-contrib-mock-node": "^0.4.0",
         "nyc": "^11.3.0",
         "prettier": "^1.8.2"
     },
