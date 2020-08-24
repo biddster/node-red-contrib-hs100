@@ -25,8 +25,6 @@
  THE SOFTWARE.
  */
 
-'use strict';
-
 const Assert = require('chai').assert;
 const Mock = require('node-red-contrib-mock-node');
 const NodeRedModule = require('../index.js');

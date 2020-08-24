@@ -21,7 +21,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-'use strict';
 
 module.exports = function hs100(RED) {
     const Hs100Api = require('fx-hs100-api');

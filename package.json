@@ -67,7 +67,8 @@
                 "rules": {
                     "@hapi/hapi/scope-start": "off",
                     "comma-dangle": "off",
-                    "brace-style": "off"
+                    "brace-style": "off",
+                    "strict": "off"
                 }
             }
         ]
