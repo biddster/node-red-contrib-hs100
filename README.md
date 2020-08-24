@@ -1,6 +1,6 @@
 # node-red-contrib-hs100
 
-This Node-RED node is for controlling tp-link Wi-Fi Smart Plug - Model HS100.
+This Node-RED node is for controlling tp-link Wi-Fi Smart Plug - Model HS100 (and HS110).
 
 This node has only been tested with a HS100(UK). The HS100 is also available in US and EU plug
 versions. We expect they will work too.
@@ -48,6 +48,12 @@ to the node's input.
 ## Turn off
 
 ## Obtain power consumption data
+
+The HS100 is a simple switch and does not support consumption. The HS110 includes the power consumption feature.
+
+I have been told that the power consumption feature is working with the Australian version of the HS110.
+
+I don't have an HS110 to test with though.
 
 To obtain the power consumption, send a message to this node's input with the topic or payload
 set to `consumption`. The consumption data will be sent via this node's output in `msg.payload`.
