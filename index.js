@@ -47,11 +47,21 @@ module.exports = function hs100(RED) {
         return new Hs100Api.Client();
     };
 
+    const getActuation = function (actuation) {
+        if (actuation) {
+            const method = hs100.supportedActuations[actuation.toLowerCase()];
+            if (method) {
+                return { name: actuation, method };
+            }
+        }
+
+        return null;
+    };
+
     RED.nodes.registerType('hs100', function (config) {
         RED.nodes.createNode(this, config);
         // eslint-disable-next-line consistent-this
         const node = this;
-
         const client = hs100.newHs100Client();
         const plug = client.getPlug({ host: config.host });
 
@@ -75,17 +85,6 @@ module.exports = function hs100(RED) {
                     });
                 })
                 .catch(errorHandler);
-        };
-
-        const getActuation = function (actuation) {
-            if (actuation) {
-                const method = hs100.supportedActuations[actuation.toLowerCase()];
-                if (method) {
-                    return { name: actuation, method };
-                }
-            }
-
-            return null;
         };
 
         node.on('input', (msg) => {
