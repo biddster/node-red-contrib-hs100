@@ -23,9 +23,7 @@
  */
 
 module.exports = function hs100(RED) {
-    'use strict';
-
-    var Hs100Api = require('fx-hs100-api');
+    const Hs100Api = require('fx-hs100-api');
 
     // TODO address the disparity of not having on and off in here. It bothers me.
     hs100.supportedActuations = {
@@ -41,30 +39,63 @@ module.exports = function hs100(RED) {
         time: 'getTime',
         timezone: 'getTimeZone',
         scaninfo: 'getScanInfo',
-        model: 'getModel'
+        model: 'getModel',
     };
 
-    hs100.newHs100Client = function() {
+    hs100.newHs100Client = function () {
         return new Hs100Api.Client();
     };
 
-    RED.nodes.registerType('hs100', function(config) {
+    const getActuation = function (actuation) {
+        if (actuation) {
+            const method = hs100.supportedActuations[actuation.toLowerCase()];
+            if (method) {
+                return { name: actuation, method };
+            }
+        }
+
+        return null;
+    };
+
+    RED.nodes.registerType('hs100', function (config) {
         RED.nodes.createNode(this, config);
-        var node = this;
+        // eslint-disable-next-line consistent-this
+        const node = this;
+        const client = hs100.newHs100Client();
+        const plug = client.getPlug({ host: config.host });
 
-        var client = hs100.newHs100Client();
-        var plug = client.getPlug({ host: config.host });
+        const errorHandler = function (err) {
+            node.error(err);
+            node.status({ fill: 'red', shape: 'dot', text: err.message });
+        };
 
-        node.on('input', function(msg) {
+        const setPowerState = function (on) {
+            node.status({
+                fill: 'orange',
+                shape: on ? 'dot' : 'circle',
+                text: 'Turning ' + (on ? 'on' : 'off'),
+            });
+            plug.setPowerState(on)
+                .then(() => {
+                    node.status({
+                        fill: 'green',
+                        shape: on ? 'dot' : 'circle',
+                        text: on ? 'on' : 'off',
+                    });
+                })
+                .catch(errorHandler);
+        };
+
+        node.on('input', (msg) => {
             if (msg.payload === 'on' || msg.topic === 'on') {
                 setPowerState(true);
             } else if (msg.payload === 'off' || msg.topic === 'off') {
                 setPowerState(false);
             } else {
-                var actuation = getActuation(msg.payload) || getActuation(msg.topic);
+                const actuation = getActuation(msg.payload) || getActuation(msg.topic);
                 if (actuation) {
                     plug[actuation.method]()
-                        .then(function(data) {
+                        .then((data) => {
                             node.send({ topic: actuation.name, payload: data });
                         })
                         .catch(errorHandler);
@@ -79,41 +110,8 @@ module.exports = function hs100(RED) {
             }
         });
 
-        node.on('close', function() {
+        node.on('close', () => {
             client.socket.close();
         });
-
-        function setPowerState(on) {
-            node.status({
-                fill: 'orange',
-                shape: on ? 'dot' : 'circle',
-                text: 'Turning ' + (on ? 'on' : 'off')
-            });
-            plug
-                .setPowerState(on)
-                .then(function() {
-                    node.status({
-                        fill: 'green',
-                        shape: on ? 'dot' : 'circle',
-                        text: on ? 'on' : 'off'
-                    });
-                })
-                .catch(errorHandler);
-        }
-
-        function getActuation(actuation) {
-            if (actuation) {
-                var method = hs100.supportedActuations[actuation.toLowerCase()];
-                if (method) {
-                    return { name: actuation, method: method };
-                }
-            }
-            return null;
-        }
-
-        function errorHandler(err) {
-            node.error(err);
-            node.status({ fill: 'red', shape: 'dot', text: err.message });
-        }
     });
 };

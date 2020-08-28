@@ -1,3 +1,6 @@
+/* eslint-disable func-style */
+/* eslint-disable prefer-arrow-callback */
+/* eslint-disable no-undef */
 /**
  The MIT License (MIT)
 
@@ -22,86 +25,86 @@
  THE SOFTWARE.
  */
 
-('use strict');
-var assert = require('chai').assert;
-var mock = require('node-red-contrib-mock-node');
-var nodeRedModule = require('../index.js');
-var _ = require('lodash');
+const Assert = require('chai').assert;
+const Mock = require('node-red-contrib-mock-node');
+const NodeRedModule = require('../index.js');
+const _ = require('lodash');
 
-describe('hs100', function() {
+describe('hs100', function () {
     this.timeout(60000);
-    it('should turn a socket on', function(done) {
-        var node = newNode();
+    it('should turn a socket on', function (done) {
+        const node = NewNode();
         node.emit('input', { payload: 'on' });
-        setTimeout(function() {
-            assert.strictEqual(node.status().text, 'on');
-            assert.strictEqual(node.status().shape, 'dot');
+        setTimeout(function () {
+            Assert.strictEqual(node.status().text, 'on');
+            Assert.strictEqual(node.status().shape, 'dot');
             node.emit('close');
             done();
         }, 10);
     });
-    it('should turn a socket off', function(done) {
-        var node = newNode();
+    it('should turn a socket off', function (done) {
+        const node = NewNode();
         node.emit('input', { payload: 'off' });
-        setTimeout(function() {
-            assert.strictEqual(node.status().text, 'off');
-            assert.strictEqual(node.status().shape, 'circle');
+        setTimeout(function () {
+            Assert.strictEqual(node.status().text, 'off');
+            Assert.strictEqual(node.status().shape, 'circle');
             node.emit('close');
             done();
         }, 10);
     });
-    it('should emit consumption data', function(done) {
-        var node = newNode();
+    it('should emit consumption data', function (done) {
+        const node = NewNode();
         node.emit('input', { payload: 'consumption' });
-        setTimeout(function() {
-            assert.deepEqual(node.sent(0).payload, { mocked: 'getConsumption' });
-            assert.strictEqual(node.sent(0).topic, 'consumption');
+        setTimeout(function () {
+            Assert.deepEqual(node.sent(0).payload, { mocked: 'getConsumption' });
+            Assert.strictEqual(node.sent(0).topic, 'consumption');
             node.emit('close');
             done();
         }, 10);
     });
-    it('should emit sysinfo data', function(done) {
-        var node = newNode();
+    it('should emit sysinfo data', function (done) {
+        const node = NewNode();
         node.emit('input', { topic: 'SysInfo' });
-        setTimeout(function() {
-            assert.deepEqual(node.sent(0).payload, { mocked: 'getSysInfo' });
-            assert.strictEqual(node.sent(0).topic, 'SysInfo');
+        setTimeout(function () {
+            Assert.deepEqual(node.sent(0).payload, { mocked: 'getSysInfo' });
+            Assert.strictEqual(node.sent(0).topic, 'SysInfo');
             node.emit('close');
             done();
         }, 10);
     });
-    it('should handle errors', function(done) {
-        var node = newNode();
+    it('should handle errors', function (done) {
+        const node = NewNode();
         node.emit('input', { payload: 'wibble' });
-        setTimeout(function() {
-            assert.isNotNull(node.error(0));
+        setTimeout(function () {
+            Assert.isNotNull(node.error(0));
             node.emit('close');
             done();
         }, 10);
     });
 });
 
-function newNode() {
-    return mock(nodeRedModule, {}, null, function(module, node) {
-        module.newHs100Client = function() {
+function NewNode() {
+    return Mock(NodeRedModule, {}, null, function (module, node) {
+        module.newHs100Client = function () {
             return {
-                getPlug: function() {
-                    var plug = {};
-                    _.values(module.supportedActuations).forEach(function(method) {
-                        plug[method] = function() {
-                            return new Promise(function(resolve, reject) {
+                getPlug: function () {
+                    const plug = {};
+                    _.values(module.supportedActuations).forEach(function (method) {
+                        plug[method] = function () {
+                            return new Promise(function (resolve, reject) {
                                 resolve({ mocked: method });
                             });
                         };
                     });
-                    plug.setPowerState = function(state) {
-                        return new Promise(function(resolve, reject) {
+                    plug.setPowerState = function (state) {
+                        return new Promise(function (resolve, reject) {
                             resolve({ mocked: state });
                         });
                     };
+
                     return plug;
                 },
-                socket: { close: function() {} }
+                socket: { close: function () {} },
             };
         };
     });
