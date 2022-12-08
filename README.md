@@ -20,6 +20,10 @@ Alternatively, use the Palette Manager in Node-RED.
 Drag this node on to a worksheet and double click it. Enter the IP address of the plug on your
 network. Save and deploy.
 
+# Dynamic configuration of IP address
+
+Alternatively you can dynamically set the IP address of the plug. To do this set the message property 'hs100_address' to the address of the plug that you wish to control.
+
 # Actuations
 
 This node supports a number of actuations that are invoked by sending a msg.topic or msg.payload

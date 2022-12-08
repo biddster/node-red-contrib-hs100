@@ -62,7 +62,10 @@ module.exports = function hs100(RED) {
         // eslint-disable-next-line consistent-this
         const node = this;
         const client = hs100.newHs100Client();
-        const plug = client.getPlug({ host: config.host });
+        var plug = null;
+        if (config.host != "") {
+          plug = client.getPlug({ host: config.host });
+        }
 
         const errorHandler = function (err) {
             node.error(err);
@@ -87,6 +90,9 @@ module.exports = function hs100(RED) {
         };
 
         node.on('input', (msg) => {
+            if ('hs100_address' in msg) {
+	            plug = client.getPlug({host: msg.hs100_address});
+            }
             if (msg.payload === 'on' || msg.topic === 'on') {
                 setPowerState(true);
             } else if (msg.payload === 'off' || msg.topic === 'off') {
