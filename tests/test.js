@@ -33,7 +33,7 @@ const _ = require('lodash');
 describe('hs100', function () {
     this.timeout(60000);
     it('should turn a socket on', function (done) {
-        const node = NewNode();
+        const node = NewNode({ host: 'localhost' });
         node.emit('input', { payload: 'on' });
         setTimeout(function () {
             Assert.strictEqual(node.status().text, 'on');
@@ -42,8 +42,22 @@ describe('hs100', function () {
             done();
         }, 10);
     });
+    // it('should turn a socket on after host reconfiguration', function (done) {
+    //     const node = NewNode({ host: 'localhost' });
+    //     node.emit('input', { hs100_address: 'localhost2', payload: 'on' });
+    //     setTimeout(function () {
+    //         Assert.strictEqual(node.status().text, 'on');
+    //         Assert.strictEqual(node.status().shape, 'dot');
+    //         Assert.deepEqual(node.sent(0).payload, {
+    //             mocked: 'on',
+    //             host: 'localhost',
+    //         });
+    //         node.emit('close');
+    //         done();
+    //     }, 10);
+    // });
     it('should turn a socket off', function (done) {
-        const node = NewNode();
+        const node = NewNode({ host: 'localhost' });
         node.emit('input', { payload: 'off' });
         setTimeout(function () {
             Assert.strictEqual(node.status().text, 'off');
@@ -53,27 +67,43 @@ describe('hs100', function () {
         }, 10);
     });
     it('should emit consumption data', function (done) {
-        const node = NewNode();
+        const node = NewNode({ host: 'localhost' });
         node.emit('input', { payload: 'consumption' });
         setTimeout(function () {
-            Assert.deepEqual(node.sent(0).payload, { mocked: 'getConsumption' });
+            Assert.deepEqual(node.sent(0).payload, {
+                mocked: 'getConsumption',
+                host: 'localhost',
+            });
             Assert.strictEqual(node.sent(0).topic, 'consumption');
             node.emit('close');
             done();
         }, 10);
     });
     it('should emit sysinfo data', function (done) {
-        const node = NewNode();
+        const node = NewNode({ host: 'localhost' });
         node.emit('input', { topic: 'SysInfo' });
         setTimeout(function () {
-            Assert.deepEqual(node.sent(0).payload, { mocked: 'getSysInfo' });
+            Assert.deepEqual(node.sent(0).payload, { mocked: 'getSysInfo', host: 'localhost' });
+            Assert.strictEqual(node.sent(0).topic, 'SysInfo');
+            node.emit('close');
+            done();
+        }, 10);
+    });
+    it('should emit sysinfo data after hs100 address reconfiguration', function (done) {
+        const node = NewNode({ host: 'localhost' });
+        node.emit('input', { hs100_address: 'localhost2', topic: 'SysInfo' });
+        setTimeout(function () {
+            Assert.deepEqual(node.sent(0).payload, {
+                mocked: 'getSysInfo',
+                host: 'localhost2',
+            });
             Assert.strictEqual(node.sent(0).topic, 'SysInfo');
             node.emit('close');
             done();
         }, 10);
     });
     it('should handle errors', function (done) {
-        const node = NewNode();
+        const node = NewNode({ host: 'localhost' });
         node.emit('input', { payload: 'wibble' });
         setTimeout(function () {
             Assert.isNotNull(node.error(0));
@@ -81,24 +111,37 @@ describe('hs100', function () {
             done();
         }, 10);
     });
+    it('should handle unconfigured host errors', function (done) {
+        const node = NewNode({});
+        node.emit('input', { payload: 'wibble' });
+        setTimeout(function () {
+            Assert.deepEqual(
+                node.error(0).message,
+                'You must set config.host or msg.hs100_address'
+            );
+            node.emit('close');
+            done();
+        }, 10);
+    });
 });
 
-function NewNode() {
-    return Mock(NodeRedModule, {}, null, function (module, node) {
+function NewNode(config) {
+    return Mock(NodeRedModule, config, null, function (module, node) {
         module.newHs100Client = function () {
             return {
-                getPlug: function () {
+                getPlug: function (config) {
+                    const plugConfig = config;
                     const plug = {};
                     _.values(module.supportedActuations).forEach(function (method) {
                         plug[method] = function () {
                             return new Promise(function (resolve, reject) {
-                                resolve({ mocked: method });
+                                resolve({ mocked: method, host: plugConfig.host });
                             });
                         };
                     });
                     plug.setPowerState = function (state) {
                         return new Promise(function (resolve, reject) {
-                            resolve({ mocked: state });
+                            resolve({ mocked: state, host: plugConfig.host });
                         });
                     };
 
