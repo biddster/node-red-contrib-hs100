@@ -27,8 +27,8 @@ THE SOFTWARE.
         category: 'output',
         color: '#f37a33',
         defaults: {
-            name: {value: ''},
-            host: {value: ''}
+            name: { value: '' },
+            host: { value: '' },
         },
         inputs: 1,
         outputs: 1,
@@ -37,7 +37,7 @@ THE SOFTWARE.
             return this.name || 'hs100';
         },
         paletteLabel: 'hs100',
-        align: 'right'
+        align: 'right',
     });
 </script>
 
@@ -51,35 +51,38 @@ THE SOFTWARE.
         <label for="node-input-host"><i class="icon-tag"></i>TP-LINK Switch IP Address</label>
         <input type="text" id="node-input-host" placeholder="">
     </div>
-
+    <div class="form-row">
+      <div class="form-tips" id="node-tip">Tip: Setting the message property 'hs100_address' overrides the Address field above, so you can leave it empty.</div>
+    </div>
 </script>
 
 <script type="text/x-red" data-help-name="hs100">
-<h1>node-red-contrib-hs100</h1>
+    <h1>node-red-contrib-hs100</h1>
 
-<p>This Node-RED node is for controlling tp-link Wi-Fi Smart Plug - Model HS100.</p>
+    <p>This Node-RED node is for controlling tp-link Wi-Fi Smart Plug - Model HS100.</p>
 
-<p>This node has only been tested with a HS100(UK). The HS100 is also available in US and EU plug versions. We expect they will work too.</p>
+    <p>This node has only been tested with a HS100(UK). The HS100 is also available in US and EU plug versions. We expect they will work too.</p>
 
-<p>This node simply wraps the excellent work here <a href="https://github.com/czjs2/hs100-api">https://github.com/czjs2/hs100-api</a>. </p>
+    <p>This node simply wraps the excellent work here <a href="https://github.com/czjs2/hs100-api">https://github.com/czjs2/hs100-api</a>. </p>
 
-<h1>Configuration</h1>
+    <h1>Configuration</h1>
 
-<p>Drag this node on to a worksheet and double click it. Enter the IP address of the plug on your network. Save and deploy.</p>
+    <p>Drag this node on to a worksheet and double click it. Enter the IP address of the plug on your network. Save and deploy.</p>
 
-<h1>Actuation</h1>
+    <p>If the message property 'hs100_address' is set it will <strong>override</strong> whatever is set in the Address field on the node's configuration screen.</p>
 
-<h2>Turn on</h2>
+    <h1>Actuation</h1>
 
-<p>To turn the HS100 on, send a message to this node's input with the topic or payload set to <code>on</code>.</p>
+    <h2>Turn on</h2>
 
-<h2>Turn off</h2>
+    <p>To turn the HS100 on, send a message to this node's input with the topic or payload set to <code>on</code>.</p>
 
-<p>To turn the HS100 off, send a message to this node's input with the topic or payload set to <code>off</code>.</p>
+    <h2>Turn off</h2>
 
-<h2>Obtain power consumption data</h2>
+    <p>To turn the HS100 off, send a message to this node's input with the topic or payload set to <code>off</code>.</p>
 
-<p>To obtain the power consumption, send a message to this node's input with the topic or payload set to `consumption`. The consumption data will
-be sent via this node's output in <code>msg.payload</code>.</p>
+    <h2>Obtain power consumption data</h2>
 
+    <p>To obtain the power consumption, send a message to this node's input with the topic or payload set to `consumption`. The consumption data will
+    be sent via this node's output in <code>msg.payload</code>.</p>
 </script>
