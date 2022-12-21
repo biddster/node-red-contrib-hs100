@@ -51,6 +51,10 @@ THE SOFTWARE.
         <label for="node-input-host"><i class="icon-tag"></i>TP-LINK Switch IP Address</label>
         <input type="text" id="node-input-host" placeholder="">
     </div>
+    <div class="form-row">
+      <div class="form-tips" id="node-tip">Tip: Setting the message property 'hs100_address' overrides the Address field above, so you can leave it empty.</div>
+    </div>
+
 
 </script>
 
@@ -66,6 +70,8 @@ THE SOFTWARE.
 <h1>Configuration</h1>
 
 <p>Drag this node on to a worksheet and double click it. Enter the IP address of the plug on your network. Save and deploy.</p>
+
+<p>If the message property 'hs100_address' is set it will <strong>override</strong> whatever is set in the Address field on the node's configuration screen.</p>
 
 <h1>Actuation</h1>
 
